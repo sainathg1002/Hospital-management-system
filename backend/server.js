@@ -4,6 +4,11 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+app.use(express.json());
+
+// Mount routes
+const hospitalRoutes = require('./routes/hospitals');
+app.use('/', hospitalRoutes);
 
 // Read env vars with defaults for development
 const PORT = process.env.PORT || 5000;
@@ -11,7 +16,7 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/hospital_d
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_default_secret_change_this';
 
 // Connect to MongoDB (safe to skip if not available)
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(MONGO_URI)
 	.then(() => console.log('Connected to MongoDB'))
 	.catch((err) => console.warn('MongoDB connection error (if running locally, make sure MongoDB is running):', err.message));
 
@@ -33,4 +38,11 @@ app.get('/env', (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+
+process.on('unhandledRejection', (reason, p) => {
+	console.error('Unhandled Rejection at Promise', p, 'reason:', reason);
+});
+process.on('uncaughtException', (err) => {
+	console.error('Uncaught Exception thrown:', err);
+});
 
